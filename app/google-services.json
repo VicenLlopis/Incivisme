@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "283354703301",
+    "project_id": "todos2022-8fce0",
+    "storage_bucket": "todos2022-8fce0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:283354703301:android:ad9dfb1ce912b6437f57ac",
+        "android_client_info": {
+          "package_name": "com.example.incivismin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "283354703301-hn8n5nceu0sfssbbq9ki3hr3ga4umit9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAkJxZKoGKSHgYMfAbw8Jro87368Jz7oE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "283354703301-hn8n5nceu0sfssbbq9ki3hr3ga4umit9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

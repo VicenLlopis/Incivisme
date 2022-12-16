@@ -1,12 +1,21 @@
 package com.example.incivismin.ui.home;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,61 +28,50 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.incivismin.databinding.FragmentHomeBinding;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 
-public class HomeFragment extends Fragment {
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+    public class HomeFragment extends Fragment {
     private FragmentHomeBinding binding;
-    private ActivityResultLauncher<String[]>  locationPermissionRequest;
-;
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        HomeViewModel homeViewModel =
-                new ViewModelProvider(this).get(HomeViewModel.class);
+
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        HomeViewModel homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.textHome;
-        homeViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        SharedViewModel sharedViewModel = new ViewModelProvider(getActivity()).get(SharedViewModel.class);
 
-        binding.btnLocation.setOnClickListener((adapter)->{
-        getLocation();
+        SharedViewModel.getCurrentAddress().observe(getViewLifecycleOwner(), address -> {
+            binding.txtHome.setText(String.format(
+                    "Direcció: %1$s \n Hora: %2$tr",
+                    address, System.currentTimeMillis()));
         });
 
-        locationPermissionRequest = registerForActivityResult(new ActivityResultContracts
-                        .RequestMultiplePermissions(), result -> {
-                    Boolean fineLocationGranted = result.getOrDefault(
-                            Manifest.permission.ACCESS_FINE_LOCATION, false);
-                    Boolean coarseLocationGranted = result.getOrDefault(
-                            Manifest.permission.ACCESS_COARSE_LOCATION, false);
-                    if (fineLocationGranted != null && fineLocationGranted) {
-                        getLocation();
-                    } else if (coarseLocationGranted != null && coarseLocationGranted) {
-                        getLocation();
-                    } else {
-                        Toast.makeText(requireContext(), "No concedeixen permisos", Toast.LENGTH_SHORT).show();
-                    }
-                }
-        );
+        sharedViewModel.getButtonText().observe(getViewLifecycleOwner(), s -> binding.btnLocation.setText(s));
+        sharedViewModel.getProgressBar().observe(getViewLifecycleOwner(), visible -> {
+            if (visible)
+                binding.progressBar.setVisibility(ProgressBar.VISIBLE);
+            else
+                binding.progressBar.setVisibility(ProgressBar.INVISIBLE);
+        });
+
+        binding.btnLocation.setOnClickListener(view -> {
+            Log.d("DEBUG", "Clicked Get Location");
+            sharedViewModel.switchTrackingLocation();
+        });
+
         return root;
-
-
-    }
-
-    private void getLocation() {
-        if (ContextCompat.checkSelfPermission(getContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            Toast.makeText(requireContext(), "Request permisssions", Toast.LENGTH_SHORT).show();
-            locationPermissionRequest.launch(new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-            });
-        } else {
-            Toast.makeText(requireContext(), "Persmisos: permissions granted", Toast.LENGTH_SHORT).show();
-        }
     }
 
     @Override
